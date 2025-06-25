@@ -1,0 +1,218 @@
+<style>
+  *,
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .container {
+    max-width: 50%;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  video {
+    display: block;
+    width: 100%;
+  }
+
+  .video-component-left {
+    position: absolute;
+    bottom: 0;
+    padding: 10px 12px;
+    left: 10px;
+  }
+
+  .video-component-right {
+    position: absolute;
+    bottom: 0;
+    padding: 10px 12px;
+    right: 10px;
+  }
+
+  .btn {
+    border: none;
+    padding: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 24px;
+    border-radius: 8px;
+  }
+  .btn-toggle {
+    background-color: transparent;
+    color: white;
+    margin-right: 10px;
+  }
+
+  .btn-minimize {
+    background-color: rgb(0, 0, 0);
+    color: white;
+  }
+
+  .btn-mute {
+    background-color: transparent;
+    color: white;
+    margin-right: 10px;
+  }
+
+  .video-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    color: white;
+  }
+
+  #progressBar {
+    flex: 1;
+    height: 6px;
+    appearance: none;
+    background: #555;
+    border-radius: 4px;
+    outline: none;
+  }
+
+  #progressBar::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: crimson;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+</style>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Show Video</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <video width="720">
+        <source src="../Sesi9/asset/Grand Theft Auto VI Trailer 2.mp4" />
+      </video>
+      <div class="video-component-left">
+        <button onclick="togglePlay()" id="playPauseBtn" class="btn btn-toggle">
+          <i class="bi bi-play"></i>
+        </button>
+        <button onclick="toggleMute()" id="muteUnmuteBtn" class="btn btn-mute">
+          <i class="bi bi-volume-up"></i>
+        </button>
+        <input type="range" id="progressBar" min="0" value="0" step="0.1" />
+        <span id="timeDisplay">00:00 / 00:00</span>
+      </div>
+      <div class="video-component-right">
+        <button
+          onclick="toggleMinimize()"
+          id="maxMinBtn"
+          class="btn btn-minimize"
+        >
+          <i class="bi bi-fullscreen"></i>
+        </button>
+      </div>
+      
+        
+      
+    </div>
+
+    <script>
+      const videoComponent = document.querySelector("video");
+      const playPauseBtn = document.getElementById("playPauseBtn");
+      const maxMinBtn = document.getElementById("maxMinBtn");
+      const muteUnmuteBtn = document.getElementById("muteUnmuteBtn");
+      const progressBar = document.getElementById("progressBar");
+      const timeDisplay = document.getElementById("timeDisplay");
+
+      function togglePlay() {
+        if (videoComponent.paused) {
+          videoComponent.play();
+          playPauseBtn.innerHTML = '<i class="bi bi-pause"></i>';
+        } else {
+          videoComponent.pause();
+          playPauseBtn.innerHTML = '<i class="bi bi-play"></i>';
+        }
+      }
+
+      function toggleMinimize() {
+        if (!document.fullscreenElement) {
+          videoComponent.requestFullscreen();
+          maxMinBtn.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
+        } else {
+          document.exitFullscreen();
+          maxMinBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+        }
+      }
+
+      function toggleMute() {
+        videoComponent.muted = !videoComponent.muted;
+
+        if (videoComponent.muted) {
+          muteUnmuteBtn.innerHTML = '<i class="bi bi-volume-mute"></i>';
+        } else {
+          muteUnmuteBtn.innerHTML = '<i class="bi bi-volume-up"></i>';
+        }
+      }
+
+      document.addEventListener("fullscreenchange", () => {
+        if (document.fullscreenElement) {
+          maxMinBtn.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
+        } else {
+          maxMinBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        switch (event.key.toLowerCase()) {
+          case "f":
+            toggleMinimize();
+            break;
+          case "m":
+            toggleMute();
+            break;
+          case " ":
+            event.preventDefault(); // biar nggak scroll halaman
+            togglePlay();
+            break;
+          case "arrowright":
+            videoComponent.currentTime += 10; // maju 5 detik
+            break;
+          case "arrowleft":
+            videoComponent.currentTime -= 10; // mundur 5 detik
+            break;
+        }
+      });
+
+      // Format waktu ke 00:00
+      function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes.toString().padStart(2, "0")}:${secs
+          .toString()
+          .padStart(2, "0")}`;
+      }
+
+      // Update progress dan waktu saat video berjalan
+      videoComponent.addEventListener("timeupdate", () => {
+        progressBar.value = videoComponent.currentTime;
+        progressBar.max = videoComponent.duration;
+        timeDisplay.textContent = `${formatTime(
+          videoComponent.currentTime
+        )} / ${formatTime(videoComponent.duration)}`;
+      });
+
+      // Geser progress bar = ganti waktu video
+      progressBar.addEventListener("input", () => {
+        videoComponent.currentTime = progressBar.value;
+      });
+    </script>
+  </body>
+</html>
